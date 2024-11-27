@@ -1,0 +1,14 @@
+{
+    "model_name": "malaria",
+    "num_classes": 2,
+    "batch_size": 32,
+    "learning_rate": 0.001,
+    "device": "cuda",
+    "mixed_precision": true,
+    "model_architecture": "efficientnetv2_rw_s",
+    "optimizer": "AdamW",
+    "scheduler": "OneCycleLR",
+    "weight_decay": 0.01,
+    "grad_clip_value": 1.0,
+    "early_stop_patience": 10
+}
