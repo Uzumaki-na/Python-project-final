@@ -64,7 +64,7 @@ const Hero = () => {
                 Get Started
               </button>
               <a
-                href="https://github.com/yourusername/medical-image-analysis"
+                href="https://github.com/Uzumaki-na/Python-project-final"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-500 bg-gray-800 hover:bg-gray-700 transition-all duration-300"

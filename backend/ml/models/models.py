@@ -13,6 +13,9 @@ class EfficientNetModel(nn.Module):
         self.register_buffer('std', torch.tensor([0.229, 0.224, 0.225]))
         
     def preprocess(self, x):
+        # Skip preprocessing if already normalized
+        if x.min() >= -1 and x.max() <= 1:
+            return x
         return (x - self.mean[None, :, None, None]) / self.std[None, :, None, None]
         
     def forward(self, x):
@@ -49,6 +52,6 @@ class SkinCancerModel(EfficientNetModel):
 class MalariaModel(EfficientNetModel):
     def __init__(self):
         super().__init__(num_classes=2)  # 2 classes: Parasitized/Uninfected
-        # Override with microscopy-specific normalization
-        self.register_buffer('mean', torch.tensor([0.5302, 0.5302, 0.5302]))
-        self.register_buffer('std', torch.tensor([0.1967, 0.1967, 0.1967]))
+        # Override with malaria-specific normalization
+        self.register_buffer('mean', torch.tensor([0.5, 0.5, 0.5]))
+        self.register_buffer('std', torch.tensor([0.25, 0.25, 0.25]))

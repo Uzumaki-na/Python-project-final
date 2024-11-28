@@ -189,7 +189,7 @@ const ImageUpload = () => {
                   </p>
                   <p className="text-gray-300">
                     <span className="font-medium">Confidence:</span>{' '}
-                    {(prediction.confidence * 100).toFixed(2)}%
+                    {(prediction.confidence * 100).toFixed(1)}%
                   </p>
                 </div>
               </motion.div>

@@ -108,13 +108,21 @@ def load_model(model_class, model_path: Path, model_name: str) -> bool:
 @app.on_event("startup")
 async def startup_event():
     """Initialize models on startup"""
-    # Get latest model paths
-    skin_cancer_model_path = model_config.get_latest_model("skin_cancer")
-    malaria_model_path = model_config.get_latest_model("malaria")
+    logger.info("Starting up the server...")
+    
+    # Define specific model paths
+    skin_cancer_path = model_config.models_dir / "skin_cancer_final.pth"
+    malaria_path = model_config.models_dir / "malaria_model.pth"
+    
+    logger.info(f"Loading skin cancer model from: {skin_cancer_path}")
+    logger.info(f"Loading malaria model from: {malaria_path}")
     
     # Load models
-    load_model(SkinCancerModel, skin_cancer_model_path, "skin_cancer")
-    load_model(MalariaModel, malaria_model_path, "malaria")
+    if not load_model(SkinCancerModel, skin_cancer_path, "skin_cancer"):
+        logger.error("Failed to load skin cancer model")
+    
+    if not load_model(MalariaModel, malaria_path, "malaria"):
+        logger.error("Failed to load malaria model")
 
 @app.get("/")
 async def root():
@@ -187,14 +195,15 @@ async def predict_skin_cancer(file: UploadFile = File(...)):
             probabilities = torch.nn.functional.softmax(outputs[0], dim=0)
             logger.info(f"After softmax: {probabilities}")
             
-            # Convert to standard Python floats and ensure proper normalization
+            # Convert to standard Python floats
             benign_prob = float(probabilities[0].item())
             malignant_prob = float(probabilities[1].item())
             
-            # Normalize probabilities to ensure they sum to 1
+            # Ensure probabilities sum to 1
             total = benign_prob + malignant_prob
-            benign_prob = benign_prob / total
-            malignant_prob = malignant_prob / total
+            if total > 0:
+                benign_prob = benign_prob / total
+                malignant_prob = malignant_prob / total
             
             # Double check the values
             logger.info(f"Final probs - Benign: {benign_prob}, Malignant: {malignant_prob}")
@@ -205,17 +214,12 @@ async def predict_skin_cancer(file: UploadFile = File(...)):
             
         predicted_class = "Benign" if prediction == 0 else "Malignant"
         
-        # Convert to percentages (0-100)
-        benign_pct = benign_prob * 100
-        malignant_pct = malignant_prob * 100
-        confidence_pct = confidence * 100
-        
         return {
             "prediction": predicted_class,
-            "confidence": round(confidence_pct, 1),  # Rounded to 1 decimal place
+            "confidence": round(confidence, 3),  # Raw probability
             "probabilities": {
-                "Benign": round(benign_pct, 1),
-                "Malignant": round(malignant_pct, 1)
+                "Benign": round(benign_prob, 3),
+                "Malignant": round(malignant_prob, 3)
             },
             "timestamp": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
             "success": True
@@ -249,14 +253,15 @@ async def predict_malaria(file: UploadFile = File(...)):
             probabilities = torch.nn.functional.softmax(outputs[0], dim=0)
             logger.info(f"After softmax: {probabilities}")
             
-            # Convert to standard Python floats and ensure proper normalization
+            # Convert to standard Python floats
             parasitized_prob = float(probabilities[0].item())
             uninfected_prob = float(probabilities[1].item())
             
-            # Normalize probabilities to ensure they sum to 1
+            # Ensure probabilities sum to 1
             total = parasitized_prob + uninfected_prob
-            parasitized_prob = parasitized_prob / total
-            uninfected_prob = uninfected_prob / total
+            if total > 0:
+                parasitized_prob = parasitized_prob / total
+                uninfected_prob = uninfected_prob / total
             
             # Double check the values
             logger.info(f"Final probs - Parasitized: {parasitized_prob}, Uninfected: {uninfected_prob}")
@@ -267,17 +272,12 @@ async def predict_malaria(file: UploadFile = File(...)):
             
         predicted_class = "Parasitized" if prediction == 0 else "Uninfected"
         
-        # Convert to percentages (0-100)
-        parasitized_pct = parasitized_prob * 100
-        uninfected_pct = uninfected_prob * 100
-        confidence_pct = confidence * 100
-        
         return {
             "prediction": predicted_class,
-            "confidence": round(confidence_pct, 1),  # Rounded to 1 decimal place
+            "confidence": round(confidence, 3),  # Raw probability
             "probabilities": {
-                "Parasitized": round(parasitized_pct, 1),
-                "Uninfected": round(uninfected_pct, 1)
+                "Parasitized": round(parasitized_prob, 3),
+                "Uninfected": round(uninfected_prob, 3)
             },
             "timestamp": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
             "success": True
