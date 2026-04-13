@@ -1,0 +1,42 @@
+graph TB
+    subgraph Input["Input Layer"]
+        IMG[Medical Image<br/>Upload]
+        IMG_TYPE{Image Type<br/>Validation}
+    end
+
+    subgraph Convolution["Convolutional Feature Extraction"]
+        CONV1[Conv2D + BatchNorm + ReLU<br/>EfficientNet Blocks]
+        POOL1[MaxPooling]
+        DROP1[Dropout 0.2]
+    end
+
+    subgraph Classifier["Classification Head"]
+        GAP[Global Average<br/>Pooling]
+        FC[Dense Layer<br/>512 units]
+        DROPOUT[Dropout 0.5]
+        OUTPUT[Output Layer<br/>2 classes]
+    end
+
+    subgraph Output["Prediction Output"]
+        SOFTMAX[Softmax<br/>Probabilities]
+        CLASS[Class Prediction<br/>Benign/Malignant<br/>Parasitized/Uninfected]
+        CONF[Confidence<br/>Score]
+    end
+
+    IMG --> IMG_TYPE
+    IMG_TYPE --> CONV1
+    CONV1 --> POOL1
+    POOL1 --> DROP1
+    DROP1 --> CONV1
+    CONV1 --> GAP
+    GAP --> FC
+    FC --> DROPOUT
+    DROPOUT --> OUTPUT
+    OUTPUT --> SOFTMAX
+    SOFTMAX --> CLASS
+    SOFTMAX --> CONF
+
+    style Input fill:#1565C0,color:#fff
+    style Convolution fill:#7B1FA2,color:#fff
+    style Classifier fill:#00695C,color:#fff
+    style Output fill:#C62828,color:#fff

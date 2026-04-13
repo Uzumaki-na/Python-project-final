@@ -1,0 +1,47 @@
+flowchart LR
+    subgraph DataCollection["1. Data Collection"]
+        A1[Download Dataset<br/>from Kaggle]
+        A2[Malaria Cell Images<br/>Skin Cancer Images]
+    end
+
+    subgraph Preprocessing["2. Data Preprocessing"]
+        B1[Resize Images<br/>128x128 / 96x96]
+        B2[Data Augmentation<br/>Flip, Rotation, ColorJitter]
+        B3[Normalize<br/>ImageNet Stats]
+        B4[Train/Val Split<br/>80%/20%]
+    end
+
+    subgraph Training["3. Model Training"]
+        C1[Load Pretrained<br/>EfficientNet]
+        C2[Fine-tune<br/>Classifier Layer]
+        C3[Cross-Entropy<br/>Loss]
+        C4[AdamW<br/>Optimizer]
+        C5[OneCycleLR<br/>Scheduler]
+    end
+
+    subgraph Evaluation["4. Evaluation"]
+        D1[Calculate<br/>Accuracy]
+        D2[Calculate<br/>Precision/Recall]
+        D3[Calculate<br/>F1-Score]
+        D4[Confusion<br/>Matrix]
+    end
+
+    A1 --> A2
+    A2 --> B1
+    B1 --> B2
+    B2 --> B3
+    B3 --> B4
+    B4 --> C1
+    C1 --> C2
+    C2 --> C3
+    C3 --> C4
+    C4 --> C5
+    C5 -->|40 Epochs| D1
+    D1 --> D2
+    D2 --> D3
+    D3 --> D4
+
+    style DataCollection fill:#1a237e,color:#fff
+    style Preprocessing fill:#006064,color:#fff
+    style Training fill:#1b5e20,color:#fff
+    style Evaluation fill:#b71c1c,color:#fff

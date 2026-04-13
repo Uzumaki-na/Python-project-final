@@ -1,0 +1,50 @@
+classDiagram
+    class FastAPI {
+        +app: FastAPI
+        +on_event("startup")
+        +root(): dict
+        +health_check(): dict
+        +predict_skin_cancer(file): dict
+        +predict_malaria(file): dict
+    }
+
+    class SkinCancerModel {
+        <<import timm>>
+        +create_model(): EfficientNet-B0
+        -num_classes: 2
+    }
+
+    class MalariaModel {
+        <<import timm>>
+        +create_model(): EfficientNet-Lite0
+        -num_classes: 2
+    }
+
+    class DatasetHandler {
+        +preprocess_image(): Tensor
+        +get_transform(): Transforms
+        -target_size: tuple
+        -normalize_mean: list
+        -normalize_std: list
+    }
+
+    class ModelConfig {
+        +base_dir: Path
+        +models_dir: Path
+        +get_latest_model(): Path
+        +save_new_model(): Path
+    }
+
+    class DataLoader {
+        +create_data_loaders(): tuple
+        -batch_size: int
+        -num_epochs: int
+    }
+
+    FastAPI --> SkinCancerModel : uses
+    FastAPI --> MalariaModel : uses
+    FastAPI --> DatasetHandler : uses
+    FastAPI --> ModelConfig : uses
+    DataLoader --> DatasetHandler : creates
+    SkinCancerModel ..> ModelConfig : loads from
+    MalariaModel ..> ModelConfig : loads from

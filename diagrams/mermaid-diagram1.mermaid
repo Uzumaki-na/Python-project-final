@@ -1,0 +1,32 @@
+flowchart TD
+    START([Start]) --> UPLOAD{User Uploads<br/>Medical Image}
+    UPLOAD -->|Valid Image| SELECT[Select Detection Type]
+    UPLOAD -->|Invalid| ERROR[Show Error<br/>Invalid Format]
+    ERROR --> UPLOAD
+    
+    SELECT -->|Skin Cancer| SKIN_PROC[Preprocess Image<br/>128x128 RGB]
+    SELECT -->|Malaria| MALARIA_PROC[Preprocess Image<br/>96x96 RGB]
+    
+    SKIN_PROC --> LOAD_MODEL{Load EfficientNet-B0<br/>Model}
+    MALARIA_PROC --> LOAD_MODEL2{Load EfficientNet-Lite0<br/>Model}
+    
+    LOAD_MODEL --> INFERENCE1[Run Inference]
+    LOAD_MODEL2 --> INFERENCE2[Run Inference]
+    
+    INFERENCE1 --> SOFTMAX1[Apply Softmax<br/>Get Probabilities]
+    INFERENCE2 --> SOFTMAX2[Apply Softmax<br/>Get Probabilities]
+    
+    SOFTMAX1 --> RESULT1{Benign or<br/>Malignant?}
+    SOFTMAX2 --> RESULT2{Parasitized or<br/>Uninfected?}
+    
+    RESULT1 -->|Benign| DISPLAY1[Display Result<br/>+ Confidence Score]
+    RESULT1 -->|Malignant| DISPLAY1
+    RESULT2 -->|Parasitized| DISPLAY2[Display Result<br/>+ Confidence Score]
+    RESULT2 -->|Uninfected| DISPLAY2
+    
+    DISPLAY1 --> END([End])
+    DISPLAY2 --> END
+
+    style START fill:#4CAF50,color:#fff
+    style END fill:#f44336,color:#fff
+    style ERROR fill:#FF9800,color:#fff

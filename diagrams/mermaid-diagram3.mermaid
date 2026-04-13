@@ -1,0 +1,27 @@
+flowchart TD
+    START([User]) --> UPLOAD[Upload Medical<br/>Image File]
+    
+    subgraph System["Medical AI System"]
+        VALIDATE[Validate Image<br/>Format & Size] --> PREPROCESS[Preprocess Image<br/>Resize & Normalize]
+        PREPROCESS --> CHOOSE[Choose Detection<br/>Type]
+        
+        CHOOSE -->|Skin Cancer| SKIN[Load EfficientNet-B0<br/>Skin Cancer Model]
+        CHOOSE -->|Malaria| MALARIA[Load EfficientNet-Lite0<br/>Malaria Model]
+        
+        SKIN --> INF1[Run Inference]
+        MALARIA --> INF2[Run Inference]
+        
+        INF1 --> PROB1[Calculate<br/>Probabilities]
+        INF2 --> PROB2[Calculate<br/>Probabilities]
+        
+        PROB1 --> OUT1[Display Result<br/>Benign/Malignant]
+        PROB2 --> OUT2[Display Result<br/>Parasitized/Uninfected]
+    end
+    
+    UPLOAD --> VALIDATE
+    OUT1 --> END([View Results<br/>& Confidence])
+    OUT2 --> END
+    
+    style START fill:#2196F3,color:#fff
+    style System fill:#37474F,color:#fff
+    style END fill:#4CAF50,color:#fff
